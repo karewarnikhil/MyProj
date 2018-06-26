@@ -1,0 +1,87 @@
+CREATE TABLE DeptMst(
+   DeptId serial PRIMARY KEY  NOT NULL,
+   DeptNm        varchar(100)  NOT NULL UNIQUE,
+   ShrtNm        varchar(4),     
+   CreationDt    timestamp,
+   Status        Char(1)  CHECK(STATUS IN ('A', 'D')) default 'A' 
+);
+
+
+CREATE TABLE DesigMst(
+   DesgId serial PRIMARY KEY  NOT NULL,
+   DesgNm       varchar(100)  NOT NULL UNIQUE,
+   ShrtNm        varchar(4),     
+   CreationDt    timestamp,
+   Status        Char(1)  CHECK(STATUS IN ('A', 'D')) default 'A' 
+);
+
+
+CREATE TABLE Config(
+   Pk Char(3)  NOT NULL,
+   Sk Char(4)  NOT NULL,
+   Ds varchar(50) NOT NULL,
+   Value varchar(50),
+   PRIMARY KEY(Pk, Sk)
+  );
+
+CREATE TABLE Menu(
+   Mid      serial PRIMARY KEY  NOT NULL,
+   Pid      integer  NOT NULL UNIQUE,
+   Mstyle   char(1) CHECK(Mstyle IN ('H', 'V')) default 'H' ,     
+   MenuNm   Varchar(40) NOT NULL,
+   PageNm   Varchar(50) NOT NULL,  
+   Status   char(1) CHECK(STATUS IN ('A', 'D')) default 'A' 
+);
+
+CREATE TABLE UserMst(
+   UserId bigserial PRIMARY KEY  NOT NULL,
+   EmailId Varchar(100)  NOT NULL UNIQUE,
+   UserName  varchar(200) NOT NULL,
+   Address   varchar(300),
+   MobNo     numeric(12)   NOT NULL,
+   DeptId    integer   NOT NULL references deptmst(DeptId),
+   DesgId	 integer   NOT NULL	references desigmst(DesgId),					
+   UserLevel integer   NOT NULL,
+   Upw1   varchar(15)  NOT NULL,
+   Upw2   varchar(15),
+   Upw3   varchar(15),
+   CreatedBy	varchar(200)  NOT NULL,
+   CreationDate  timestamp,
+   Status   Char(1)  CHECK(STATUS IN ('A', 'T', 'S')) default 'A',       
+   HintId   integer references HintQuestionMst(hintId),
+   HintAns  varchar(50),
+   OTP      varchar(10)								
+   );
+
+CREATE TABLE UACC(
+   UserId  bigint  NOT NULL references UserMst(UserId),     
+   Mid  integer  NOT NULL references Menu(Mid),
+   AAdd  char(1)  CHECK(AAdd IN ('A', 'D')) default 'A',     
+   AUpdate Char(1)  CHECK(AUpdate IN ('A', 'D')) default 'A',     
+   ADel  Char(1)  CHECK(ADel IN ('A', 'D')) default 'A',       
+   AView   char(1)  CHECK(AView IN ('A', 'D')) default 'A',     
+   APass   char(1)  CHECK(APass IN ('A', 'D')) default 'A',   
+   PRIMARY KEY(UserId, Mid)
+);
+
+CREATE TABLE LoginHistory(
+   SrNo  numeric(12) PRIMARY KEY  NOT NULL,
+   UserId  bigint  NOT NULL references UserMst(UserId),
+   TransType Char(1) CHECK(TransType IN ('I', 'O')), 
+   TransDateTime   timestamp NOT NULL
+);   
+
+CREATE TABLE hintquestionmst
+(
+    hintid serial PRIMARY KEY  NOT NULL,
+    hintquestion varchar(50) NOT NULL
+)
+   
+insert into deptMst (deptnm, shrtnm,creationdt) VALUES ('Computer', 'Cse','2007-12-13');
+insert into desigMst (desgnm, shrtnm,creationdt) VALUES ('Admin', 'Ad', '2018-01-01');
+INSERT INTO hintquestionmst(hintquestion)VALUES ('What is your First Name?');
+insert into menu (pid, mstyle, menunm, pagenm, status) VALUES (0, 'H', 'Manage Designation', 'designation.jsp', 'A');
+
+INSERT INTO public.usermst(emailid, username, address, mobno, deptid, desgid, userlevel, upw1, createdby, creationdate, status, hintid, hintans)VALUES('userTwo@test.com', 'userTwo@test.com', 'Pune', 3333333333, 1, 3, 1 , 1234, 'admin@test.com', '2018-01-01', 'A', 1, 'userTwo');
+
+http://127.0.0.1:49741/browser/

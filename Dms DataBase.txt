@@ -21,7 +21,7 @@ CREATE TABLE Config(
    Sk Char(4)  NOT NULL,
    Ds varchar(50) NOT NULL,
    Value varchar(50),
-   PRIMARY KEY(Pk, Sk)
+   PRIMARY KEY(Pk, Sk) UNIQUE
   );
 
 CREATE TABLE Menu(
@@ -35,7 +35,7 @@ CREATE TABLE Menu(
 
 CREATE TABLE UserMst(
    UserId bigserial PRIMARY KEY  NOT NULL,
-   EmailId Varchar(100)  NOT NULL UNIQUE,
+  EmailId Varchar(100)  NOT NULL UNIQUE,
    UserName  varchar(200) NOT NULL,
    Address   varchar(300),
    MobNo     numeric(12)   NOT NULL,
@@ -50,8 +50,19 @@ CREATE TABLE UserMst(
    Status   Char(1)  CHECK(STATUS IN ('A', 'T', 'S')) default 'A',       
    HintId   integer references HintQuestionMst(hintId),
    HintAns  varchar(50),
-   OTP      varchar(10)								
-   );
+   OTP      varchar(10)	
+ );
+
+CREATE TABLE FileMst(
+   fileId bigserial PRIMARY KEY  NOT NULL,
+   createdBy bigint NOT NULL references UserMst(UserId),
+   folderid bigint NOT NULL references folderMst(folderId),
+   fileName varchar(200) NOT NULL,
+   discription varchar(200) NOT,
+   type varchar(200) NOT NULL,
+   content bytea NOT NULL,
+   CreationDate  timestamp
+ );
 
 CREATE TABLE UACC(
    UserId  bigint  NOT NULL references UserMst(UserId),     
@@ -77,6 +88,12 @@ CREATE TABLE hintquestionmst
     hintquestion varchar(50) NOT NULL
 )
 
+CREATE TABLE AllSequence
+(
+    seqNm varchar(10) PRIMARY KEY  NOT NULL,
+    currentVal  integer NOT NULL;
+)
+
 
 CREATE TABLE ClassMst(
    ClassId bigserial PRIMARY KEY  NOT NULL,
@@ -99,8 +116,9 @@ CREATE TABLE ClassMst(
 
 CREATE TABLE FolderMst(
    FolderId bigserial PRIMARY KEY  NOT NULL,
-   ParentId bigint NOT NULL,
-   RootId bigint NOT NULL default -1,
+   ParentId bigint NOT NULL default 0,
+   RootId bigint NOT NULL default 0,
+   DeptId    integer   NOT NULL references deptmst(DeptId),
    FldrNm varchar(200) NOT NULL,
    IsInnerFolders Char(1)  NOT NULL CHECK(IsInnerFolders  IN ('Y', 'N')) default 'Y',
    FolderCnt integer default 0,
@@ -111,8 +129,74 @@ CREATE TABLE FolderMst(
    CreatedBy bigint NOT NULL references UserMst(UserId),
    CreationDate  timestamp
    ); 
-  
-  	
+ create or replace function increment_CurrentVal(IN seqNm_a varchar)
+returns integer as $currentVal_a$
+declare currentVal_a integer;
+begin
+  return(SELECT a.currentVal from AllSequence a where a.seqNm = seqNm_a);
+end;
+$currentVal_a$ language plpgsql;
+
+Select increment_CurrentVal('FolderId')
+
+ 
+CREATE OR REPLACE FUNCTION increment_CurrentVal(seqName varchar)
+RETURNS int AS
+$BODY$
+BEGIN
+DECLARE value integer;
+
+        SELECT currentVal 
+        FROM    AllSequence
+        WHERE   seqNm = seqName;
+		value = currentVal+1;
+		
+		Update AllSequence set currentVal = value where seqNm = seqName;
+        RETURN value;
+$BODY$
+LANGUAGE plpgsql
+SELECT public.increment_currentval(
+	'FolderId'
+)
+
+CREATE OR REPLACE FUNCTION master.test2(tehsil text, district text, state text, flag text)
+RETURNS int AS
+$BODY$
+BEGIN
+Declare
+ione int;
+IF flag='A' THEN
+select COALESCE (Count(*))into ione from master.population where income in('1','2')and statecode=state;
+ELSIF flag='B' THEN
+select COALESCE (Count(*)) into ione from master.population where income in('1','2') and statecode=state and districtcode=district ;
+ELSIF flag='C' THEN
+select COALESCE(Count(*)) into ione from master.population where income in('1','2') and statecode=state and districtcode=district and tehsilcode=tehsil;
+
+
+ELSE
+select COALESCE (Count(*)) into ione from master.population where income in('1','2');
+END IF;
+
+return ione;
+END;
+$BODY$
+LANGUAGE plpgsql
+    
+select * from classmst;
+
+delete from classmst where classid =19;
+
+Select * from usermst;
+
+update usermst set userlevel=0 where userId=1;
+
+select * from config;
+
+select * from groupmst;
+
+select * from deptmst;
+
+select * from foldermst;	
   
    
 insert into deptMst (deptnm, shrtnm,creationdt) VALUES ('Computer', 'Cse','2007-12-13');

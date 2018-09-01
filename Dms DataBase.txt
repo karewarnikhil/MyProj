@@ -33,6 +33,15 @@ CREATE TABLE Menu(
    Status   char(1) CHECK(STATUS IN ('A', 'D')) default 'A' 
 );
 
+CREATE TABLE IconMst(
+  IconId      serial PRIMARY KEY  NOT NULL,
+   Pid      integer  NOT NULL UNIQUE,
+   Mstyle   char(1) CHECK(STATUS IN ('H', 'V')) default 'H' ,     
+   MenuNm   Varchar(40) NOT NULL,
+   PageNm   Varchar(50) NOT NULL,  
+   Status   char(1) CHECK(STATUS IN ('A', 'D')) default 'A' 
+);
+
 CREATE TABLE UserMst(
    UserId bigserial PRIMARY KEY  NOT NULL,
   EmailId Varchar(100)  NOT NULL UNIQUE,
@@ -53,16 +62,6 @@ CREATE TABLE UserMst(
    OTP      varchar(10)	
  );
 
-CREATE TABLE FileMst(
-   fileId bigserial PRIMARY KEY  NOT NULL,
-   createdBy bigint NOT NULL references UserMst(UserId),
-   folderid bigint NOT NULL references folderMst(folderId),
-   fileName varchar(200) NOT NULL,
-   discription varchar(200) NOT,
-   type varchar(200) NOT NULL,
-   content bytea NOT NULL,
-   CreationDate  timestamp
- );
 
 CREATE TABLE UACC(
    UserId  bigint  NOT NULL references UserMst(UserId),     
@@ -129,6 +128,64 @@ CREATE TABLE FolderMst(
    CreatedBy bigint NOT NULL references UserMst(UserId),
    CreationDate  timestamp
    ); 
+
+CREATE TABLE FileMst(
+   FileId bigint NOT NULL,
+   SeqNo int NOT NULL,
+   FolderId bigint NOT NULL references folderMst(folderId),
+   RootId bigint NOT NULL,
+   FileNm varchar(200) NOT NULL,
+   FileContents bytea NOT NULL,
+   FileExtn  Char(4) NOT NULL,
+   Atribt char(1) NOT NULL CHECK(Atribt IN ('A', 'D', 'R', 'H', 'O')) default 'A',
+   CreatedBy bigint NOT NULL references UserMst(UserId),
+   CreationDt  timestamp NOT NULL,
+   ModifiedBy bigint,
+   ModificationDt  timestamp,
+   PageCnt  int,
+   FilePath text,
+   FileLocation text NOT NULL,
+   TagStatus char(1) NOT NULL CHECK(TagStatus IN ('Y', 'N')) default 'N',   
+   UNIQUE (FileId , SeqNo),
+   PRIMARY KEY(FileId , SeqNo)
+ );
+
+CREATE TABLE TagTypeMst(
+   TagTypeId serial PRIMARY KEY  NOT NULL,
+   TagTypeDesc Varchar(100) NOT NULL UNIQUE,
+   TagTypeShrtDesc char(3),
+   Status   char(1) NOT NULL CHECK(STATUS IN ('A', 'D')) default 'A' 
+);
+
+CREATE TABLE TagMst(
+   TagGrpId bigserial NOT NULL,
+   TagId int NOT NULL,
+   TagNm Varchar(100) NOT NULL,
+   TagTypeId int NOT NULL references TagTypeMst(TagTypeId),
+   Width int NOT NULL,
+   IsMandatory char(1) NOT NULL CHECK(STATUS IN ('Y', 'N')),
+   ListId int NOT NULL references ListMst(ListId),
+   DispSeqNo int NOT NULL,
+   CreatedBy bigint NOT NULL references UserMst(UserId),
+   CreatedDateTime NOT NULL timestamp,
+   Status   char(1) NOT NULL CHECK(STATUS IN ('A', 'D')) default 'A',
+   PRIMARY KEY(TagGrpId , TagId) 
+);
+
+CREATE TABLE FileTagsData(
+   FTagId bigserial PRIMARY KEY  NOT NULL,
+   FileId  bigint  NOT NULL references FileMst(FileId),
+   SeqNo int NOT NULL references FileMst(SeqNo),
+   TagGrpId bigint NOT NULL references TagMst(TagGrpId),
+   TagId int NOT NULL references TagMst(TagId),
+   TagData Varchar(200) NOT NULL,
+   ListId int NOT NULL references ListData(ListId),
+   ListNo int NOT NULL references ListData(ListNo),
+  CreatedBy bigint NOT NULL references UserMst(UserId),
+   CreationDate NOT NULL timestamp,
+ )
+
+
  create or replace function increment_CurrentVal(IN seqNm_a varchar)
 returns integer as $currentVal_a$
 declare currentVal_a integer;
@@ -206,3 +263,31 @@ INSERT INTO hintquestionmst(hintquestion)VALUES ('What is your First Name?');
 INSERT INTO public.usermst(emailid, username, address, mobno, deptid, desgid, userlevel, upw1, createdby, creationdate, status, hintid, hintans)VALUES('userTwo@test.com', 'userTwo@test.com', 'Pune', 3333333333, 1, 3, 1 , 1234, 'admin@test.com', '2018-01-01', 'A', 1, 'userTwo');
 
 http://127.0.0.1:49741/browser/
+
+SELECT * from taggrpmst;
+
+CREATE TABLE TagTypeMst(
+   TagTypeId serial PRIMARY KEY  NOT NULL,
+   TagTypeDesc Varchar(100) NOT NULL UNIQUE,
+   TagTypeShrtDesc char(3),
+   Status   char(1) NOT NULL CHECK(STATUS IN ('A', 'D')) default 'A' 
+);
+
+SELECT * from TagTypeMst;
+
+CREATE TABLE TagMst(
+   TagGrpId bigserial NOT NULL,
+   TagId int NOT NULL,
+   TagNm Varchar(100) NOT NULL,
+   TagTypeId int NOT NULL references TagTypeMst(TagTypeId),
+   Width int NOT NULL,
+   IsMandatory char(1) NOT NULL CHECK(STATUS IN ('Y', 'N')),
+   ListId int NOT NULL references ListMst(ListId),
+   DispSeqNo int NOT NULL,
+   CreatedBy bigint NOT NULL references UserMst(UserId),
+   CreatedDateTime  timestamp NOT NULL,
+   Status   char(1) NOT NULL CHECK(STATUS IN ('A', 'D')) default 'A',
+   PRIMARY KEY(TagGrpId , TagId) 
+);
+								   
+Select * from tagmst;	

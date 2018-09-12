@@ -148,6 +148,9 @@ CREATE TABLE FileMst(
    TagStatus char(1) NOT NULL CHECK(TagStatus IN ('Y', 'N')) default 'N',   
    UNIQUE (FileId , SeqNo),
    PRIMARY KEY(FileId , SeqNo)
+alter table filemst add column   VerType   char(2) CHECK(VerType IN ('BT', 'MN', 'MJ')) NOT NULL default 'BT' 
+alter table filemst add column  VerNo int NOT NULL default 1
+alter table filemst add column  VerId int NOT NULL default 0
  );
 
 CREATE TABLE TagTypeMst(
@@ -186,7 +189,7 @@ CREATE TABLE FileTagsData(
  )
 
 
- create or replace function increment_CurrentVal(IN seqNm_a varchar)
+ create or replace function increment_CurrentVal123(IN seqNm_a varchar)
 returns integer as $currentVal_a$
 declare currentVal_a integer;
 begin
@@ -291,3 +294,56 @@ CREATE TABLE TagMst(
 );
 								   
 Select * from tagmst;	
+
+
+UPDATE filemst SET  "tagEntryDt"=(SELECT cast (TO_CHAR(NOW(),'DD-MM-YYYY HH-MI-SS') as timestamp) where fileId=23
+	
+
+	
+	Select * from taggrpmst limit 5000;
+select * from filemst where fileId in(23,24,25,26)
+update filemst set tagEntryDt= where fileId=23
+
+Select CURRENT_DATE;
+SELECT TO_CHAR(date '2001-09-28' +time, 'HH24:MI:SS')
+SELECT TO_CHAR(NOW(),'DD-MM-YYYY HH-MI-SS');
+update filemst set 
+								  
+Update 	filemst SET "tagEntryDt"= ( Select current_timestamp - (20 ||' minutes')::interval) where fileId=26							  
+			
+					Select current_timestamp + (20 ||' minutes'):ss:interval
+
+
+
+CREATE OR REPLACE FUNCTION public.getParamValue(
+	pk_Val character varying,
+	sk_Val character varying,
+	OUT currentval_a character varying)
+    RETURNS character varying
+    LANGUAGE 'plpgsql'
+
+    COST 100
+    VOLATILE 
+AS $BODY$
+
+begin
+   Select value as currentval_a from config  where pk=pk_Val AND sk=sk_Val  ;
+  end;
+
+$BODY$;
+
+
+
+create or replace function getparamvalue(IN pk_val varchar,IN sk_val varchar,OUT currentval_a)
+returns varchar as $currentVal_a$
+declare currentVal_a varchar;
+begin
+  return currentval_a(SELECT a.value from config a where a.pk = pk_val AND a.sk=sk_val);
+end;
+$currentVal_a$ language plpgsql;
+
+Select increment_CurrentVal('FolderId')
+
+
+Select getparamvalue('FLT','LIMT');
+select * from config;

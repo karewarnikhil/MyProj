@@ -1,0 +1,89 @@
+CREATE TABLE RackMst(
+   RackId serial PRIMARY KEY  NOT NULL,
+   BranchId integer NOT NULL references BranchMst(BranchId),
+   RackNo varchar(200) NOT NULL,
+   CreationDt timestamp,
+   Status Char(1)  CHECK(STATUS IN ('A', 'D')) default 'A' 
+);
+
+CREATE TABLE ShelfMst(
+   ShelfId serial PRIMARY KEY  NOT NULL,
+   BranchId integer NOT NULL references BranchMst(BranchId),
+   RackId integer NOT NULL references RackMst(RackId),
+   ShelfNo varchar(200) NOT NULL,
+   CreationDt timestamp,
+   Status Char(1)  CHECK(STATUS IN ('A', 'D')) default 'A'  
+);
+
+CREATE TABLE CompartMst(
+   CompartId serial PRIMARY KEY  NOT NULL,
+   BranchId integer NOT NULL references BranchMst(BranchId),
+   RackId integer   NOT NULL references RackMst(RackId),
+   ShelfId integer NOT NULL references ShelfMst(ShelfId),
+   CompNo varchar(200) NOT NULL,
+   CreationDt timestamp,
+   Status Char(1)  CHECK(STATUS IN ('A', 'D')) default 'A'
+);
+
+CREATE TABLE BranchMst(
+   BranchId serial PRIMARY KEY  NOT NULL,
+   BranchNm varchar(200) UNIQUE NOT NULL,
+   BranchAddress varchar(200) NOT NULL,
+   CreationDt timestamp,
+   Status Char(1)  CHECK(STATUS IN ('A', 'D')) default 'A' 
+);
+
+
+CREATE TABLE FileInOutTrans(
+   TransId serial PRIMARY KEY  NOT NULL,
+   UserId bigint NOT NULL references UserMst(UserId),
+   FileId bigint NOT NULL references FileMst(FileId),
+   BranchId integer NOT NULL references BranchMst(BranchId),
+   RackId integer NOT NULL references RackMst(RackId ),
+   ShelfId integer NOT NULL references ShelfMst(ShelfId),
+   CompartId integer NOT NULL references CompartMst(CompartId),
+   TXNType char(1) NOT NULL CHECK(STATUS IN ('I', 'O')),
+   TXNDate timestamp NOT NULL,
+   AuthorityNM varchar(200) NOT NULL,
+   Remark varchar(200) NOT NULL,
+   RDate timestamp NOT NULL,
+   RTime TIME NOT NULL,
+   RMobile numeric(12,0) NOT NULL
+ );
+
+CREATE TABLE MetaData(
+   title varchar(999),
+   mtitle varchar(999),
+   subject varchar(999),
+   author varchar(999),
+   publisher varchar(999),
+   year varchar(999),
+   bookno varchar(999),
+   accountno varchar(999)
+);
+
+CREATE TABLE Adhyatm(
+   filenm varchar(999)
+);
+
+CREATE TABLE ALLFILESFIRSTUPLOAD(
+   filenm varchar(999)
+);
+
+130-1918-maza uttarhindustancha prawas -- History
+384-1963-bara gavacha pani -- Bhupravas N/A
+1900-196-patre. Yadi.vagaire -- delete One entry
+1857-9-10 san 1927 che kayade va tyanchi anukramanika .rup.vyakhya -- delete One entry
+570-chal sakhaya jiva re. punha ghari --delete One Entry
+
+
+History -25
+charitr -88
+Total -236
+
+
+-l eng+myeng
+-l eng+jpn
+-l jpn+eng
+-l hin+san
+-l eng+tam
